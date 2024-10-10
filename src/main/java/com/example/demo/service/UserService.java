@@ -80,6 +80,73 @@ public class UserService {
 
 	}
 
+	public User profile(String uuid) {
+		Optional<User> userOptional = userRepository.findById(uuid);
+		if (userOptional.isPresent()) {
+			return userOptional.get();
+		}
+		return null;
+	}
+
+	public String changeName(String uuid, String name) {
+		User user = buscarUsuarioUuid(uuid);
+		if (user != null) {
+			user.setName(name);
+			userRepository.save(user);
+			return "Nombre cambiado con exito";
+		} else {
+			return "Usuario no encontrado";
+		}
+	}
+
+	public String changeSurname(String uuid, String surname) {
+		User user = buscarUsuarioUuid(uuid);
+		if (user != null) {
+			user.setSurname(surname);
+			userRepository.save(user);
+			return "Apellido cambiado con exito";
+		} else {
+			return "Usuario no encontrado";
+		}
+	}
+
+	public String changeEmail(String uuid, String email) {
+		User user = buscarUsuarioUuid(uuid);
+		if (user != null) {
+			User userMismoMail = buscarUsuarioMail(email);
+			System.out.println(userMismoMail);
+			if (userMismoMail == null) {
+				user.setEmail(email);
+				userRepository.save(user);
+				return "Mail actualizado";
+			} else {
+				return "El mail ya esta ocupado, intente con otro email";
+			}
+		} else {
+			return "Usuario no encontrado";
+		}
+	}
+
+	public String changePassword(String uuid, String original, String nueva1, String nueva2) {
+		User user = buscarUsuarioUuid(uuid);
+		if (user != null) {
+			if (checkearPassword(original, user.getPassword())) {
+				if (nueva1.equals(nueva2)) {
+					String passwordHasheado = hashearPassword(nueva1);
+					user.setPassword(passwordHasheado);
+					userRepository.save(user);
+					return "Contrasena cambiada con exito";
+				} else {
+					return "Las contrasenas nuevas no coinciden";
+				}
+			} else {
+				return "La contrasena actual no coincide";
+			}
+		} else {
+			return "Usuario no encontrado";
+		}
+	}
+
 	public static String generarPasswordProvisorio(int length) {
 		String caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		SecureRandom random = new SecureRandom();
@@ -112,6 +179,15 @@ public class UserService {
 			return user;
 		}
 		return null;
+	}
+
+	public User buscarUsuarioUuid(String uuid) {
+		Optional<User> userOptional = userRepository.findById(uuid);
+		if (userOptional.isPresent()) {
+			return userOptional.get();
+		} else {
+			return null;
+		}
 	}
 
 	private static String hashearPassword(String original) {
