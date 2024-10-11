@@ -3,6 +3,9 @@ package com.example.demo.controller;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.demo.modelo.Avatar;
 import com.example.demo.modelo.User;
 import com.example.demo.service.AvatarService;
 import com.example.demo.service.UserService;
@@ -112,6 +116,23 @@ public class Controller {
 		} else {
 			return ResponseEntity.badRequest().body("Error al intenter guardar el avatar");
 		}
+	}
+
+	@GetMapping("/getAvatar")
+	public ResponseEntity<byte[]> obtenerAvatar(@RequestParam String uuid) {
+		Avatar avatar = avatarService.obtenerAvatar(uuid);
+
+		if (avatar == null || avatar.getImagen() == null) {
+			// Retornar 404 Not Found si no se encuentra el avatar o la imagen está vacía
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		// Configurar encabezados para indicar el tipo de contenido como imagen
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Content-Type", "image/jpeg"); // Cambiar según el tipo de imagen almacenada
+
+		// Devolver la imagen en la respuesta
+		return new ResponseEntity<>(avatar.getImagen(), headers, HttpStatus.OK);
 	}
 
 }

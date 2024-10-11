@@ -28,4 +28,8 @@ public class AvatarService {
 		return "Avatar guardado con exito";
 	}
 
+	public Avatar obtenerAvatar(String uuid) {
+		return avatarRepository.findById(uuid).orElse(null);
+	}
+
 }
