@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,8 +10,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.modelo.User;
+import com.example.demo.service.AvatarService;
 import com.example.demo.service.UserService;
 
 @RestController
@@ -18,6 +22,9 @@ public class Controller {
 
 	@Autowired
 	UserService userService;
+
+	@Autowired
+	AvatarService avatarService;
 
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestParam String email, @RequestParam String password,
@@ -95,4 +102,16 @@ public class Controller {
 			return ResponseEntity.badRequest().body(resultado);
 		}
 	}
+
+	@PostMapping("/uploadAvatar")
+	public ResponseEntity<String> uploadAvatar(@RequestParam String uuid, @RequestParam MultipartFile imagen)
+			throws IOException {
+		String resultado = avatarService.guardarAvatar(uuid, imagen);
+		if (resultado.contains("Avatar guardado con exito")) {
+			return ResponseEntity.ok(resultado);
+		} else {
+			return ResponseEntity.badRequest().body("Error al intenter guardar el avatar");
+		}
+	}
+
 }
